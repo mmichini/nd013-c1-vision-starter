@@ -1,2 +1,5 @@
 *__pycache__
 *.ipynb_checkpoints/
+
+# data holds the training/validation data, which we don't want to commit to version control
+data/

@@ -11,3 +11,13 @@ Besides autonomous driving, one can also imagine other applications where this f
 - As a tool to supplement human drivers in avoiding collisions (e.g. as part of an Advanced Driver-Assistance System)
 - Data collection for urban planning. For example, how many cyclists pass through a given intersection over the course of a typical week?
 - Any other use case where an understanding of road users is important.
+
+## Setup
+
+### Retrieve the data
+
+Note: These steps should be performed on the host machine (i.e. not in a Docker container)
+
+Rather than using `download_process.py` to download the raw tfrecords and isolate the camera data (which will take a very long time), we'll instead just download the pre-processed data directly from the Udacity Project Workspace for this project. Open the project workspace in a browser and navigate to `/home/workspace` in the left window (should already be there). Right click on `data` and click `Download`. This will download a file called `data.tar.gz` to your `~/Downloads` folder.
+
+Then, on your local machine: From the root of this repo, run `tar -xvf ~/Downloads/data.tar.gz` to extract the data into the workspace. The data will be extracted with the same directory structure as in the project workspace.
