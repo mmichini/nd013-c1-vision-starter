@@ -65,3 +65,7 @@ Another useful data metric is the number of each label type present in images. T
 ![Histogram of number of cyclist labels per image](img/label_dist_cyclist_hist.png)
 
 From the histograms, it is clear to see that most images contain vehicles, and in fact multiple vehicles. However, most images do not contain pedestrians or cyclists. Very few images contain large numbers of pedestrians, and only a handful of images contain multiple cyclists. It may prove useful to keep this in mind as we continue with training our model.
+
+### Cross validation
+
+We will use an 80/20 split between training and validation. This is a fairly common ratio and a good place to start. The splitting of the dataset is performed in the `create_splits.py` python script.
