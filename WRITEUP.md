@@ -22,11 +22,29 @@ Rather than using `download_process.py` to download the raw tfrecords and isolat
 
 Then, on your local machine: From the root of this repo, run `tar -xvf ~/Downloads/data.tar.gz` to extract the data into the workspace. The data will be extracted with the same directory structure as in the project workspace.
 
+You'll also need to download the [pre-trained model](http://download.tensorflow.org/models/object_detection/tf2/20200711/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.tar.gz). Once you've downloaded it to your `~/Downloads` folder, then run the following from the root of this repo:
+
+```bash
+mkdir -p experiments/pretrained_model
+cd experiments/pretrained_model
+tar -xvf ~/Downloads/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.tar.gz 
+```
+
 ### Running the submitted code
 
 The notebooks and other code in this submission can be run inside the supplied Docker container. Follow provided instructions in the `build` directory to build and run the Docker container.
 
 Note that when trying to run the "Exploratory Data Analysis" notebook in the Docker container, I encountered an error `AttributeError: module 'pyparsing' has no attribute 'downcaseTokens'`. It appears that the latest pyparsing module is too new (`downcaseTokens` was changed to `downcase_tokens` in version 3.0.0). To remedy this, simply install an older version by running `pip install pyparsing==2.4.2`.
+
+In addition, the evaluation process may fail with error `TypeError: 'numpy.float64' object cannot be interpreted as an integer`. If so, then we need to use an older version of numpy. Install it with `pip install numpy==1.17.5`.
+
+To run the config edit step, use the following from the root of the repo:
+
+```bash
+python edit_config.py --train_dir /app/project/data/waymo/train/ --eval_dir /app/project/data/waymo/val/ --batch_size 2 --checkpoint /app/project/experiments/pretrained_model/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8/checkpoint/ckpt-0 --label_map /app/project/experiments/label_map.pbtxt
+mkdir -p experiments/reference
+mv pipeline_new.config experiments/reference
+```
 
 ## Dataset
 
@@ -69,3 +87,25 @@ From the histograms, it is clear to see that most images contain vehicles, and i
 ### Cross validation
 
 We will use an 80/20 split between training and validation. This is a fairly common ratio and a good place to start. The splitting of the dataset is performed in the `create_splits.py` python script.
+
+## Training
+
+### Reference experiment
+
+The reference experiment took about 1.25 hrs to finish on my desktop linux machine. Looking at the loss over time, it appears that the total_loss initially increased, then decreased substantially before roughly plateauing near ~2.1.
+
+![Reference experiment losses](img/reference_losses.png)
+
+Taking a look at the precision and recall, all values were almost 0, meaning our model does not perform well at all.
+
+![Reference experiment precision and recall](img/reference_precision_recall.png)
+
+So either something went wrong during the training, or the model is simply not very good at detecting objects. Taking a look at the side-by-side images, no objects are detected at all:
+
+![Reference experiment side-by-side](img/reference_side_by_side.png)
+
+Something odd to note is that the train_input_images in tensorboard appear very oversaturated. I wonder if this is at the root of the poor performance?
+
+![Reference experiment side-by-side](img/reference_oversat.png)
+
+In any case, this was a disappointing result. There were many errors / python package issues that occurred while trying to train this model, and many workarounds needed to be used, so perhaps this is part of the problem. The supplied Dockerfile and README instructions unfortunately did not work out of the box.

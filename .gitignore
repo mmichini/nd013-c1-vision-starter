@@ -3,3 +3,6 @@
 
 # data holds the training/validation data, which we don't want to commit to version control
 data/
+
+# This directory holds the pretrained model, which is quite large
+experiments/pretrained_model/
