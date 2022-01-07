@@ -128,6 +128,21 @@ An example augmented image is shown below.
 
 ![Augmented image](img/augmentations.png)
 
+These augmentations have been added to the [pipeline_new.config](pipeline_new.config) file in this repo. The new additions looks like this:
+
+```protobuf
+  data_augmentation_options {
+    random_adjust_brightness {
+    }
+  }
+  data_augmentation_options {
+    random_black_patches {
+      probability: 0.25
+      size_to_image_ratio: 0.08
+    }
+  }
+```
+
 #### Results
 
 The augmented dataset experiment also showed poor results. As can be seen below, the total loss reaached a minimum of around 8.05 at around 6000 steps, then shot up to a very high values. It then steadily decreased and asymptoted at around 12.5. This is a significantly higher loss than the reference experiment, so it appears that the augmentations made things much worse rather than better.
