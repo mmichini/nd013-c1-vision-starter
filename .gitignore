@@ -6,3 +6,7 @@ data/
 
 # This directory holds the pretrained model, which is quite large
 experiments/pretrained_model/
+
+# Ignore the actual experiment directories
+experiments/reference
+experiments/improved

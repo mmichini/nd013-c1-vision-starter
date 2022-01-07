@@ -42,8 +42,8 @@ To run the config edit step, use the following from the root of the repo:
 
 ```bash
 python edit_config.py --train_dir /app/project/data/waymo/train/ --eval_dir /app/project/data/waymo/val/ --batch_size 2 --checkpoint /app/project/experiments/pretrained_model/ssd_resnet50_v1_fpn_640x640_coco17_tpu-8/checkpoint/ckpt-0 --label_map /app/project/experiments/label_map.pbtxt
-mkdir -p experiments/reference
-mv pipeline_new.config experiments/reference
+mkdir -p experiments/improved
+mv pipeline_new.config experiments/improved
 ```
 
 ## Dataset
@@ -109,3 +109,29 @@ Something odd to note is that the train_input_images in tensorboard appear very 
 ![Reference experiment side-by-side](img/reference_oversat.png)
 
 In any case, this was a disappointing result. There were many errors / python package issues that occurred while trying to train this model, and many workarounds needed to be used, so perhaps this is part of the problem. The supplied Dockerfile and README instructions unfortunately did not work out of the box.
+
+### Improved experiment
+
+#### Augmentations
+
+In the reference experiment, a few data augmentations were already used, namely `random_horizontal_flip` and
+`random_crop_image`. These make sense for the problem at hand, since vehicles, humans, and bicycles appear roughly the same when flipped side-to-side, and all of the images in this dataset are rotated properly so that this will not cause issues. Also, cropping the images provides some diversity without modifying or changing the information in the image.
+
+To improve upon the reference experiment, a few data augmentation options were added:
+
+- `RandomBlackPatches`: In the training images, sometimes there appeared to be water drops or other things occluding part of the image. This can be simulated with an augmentation using black patches.
+- `RandomAdjustBrightness`: It may be expected that real images may vary in brightness due to conditions, camera settings, etc. So it makes sense to vary the brightness a bit as an augmentation.
+
+For all augmentations, the default values were used, except for `RandomBlackPatches`, for which `probability` was set to 0.25 to avoid augmenting all the images, and `size_to_image_ratio` was set to 0.08. Because the images are fairly wide-angle, using too large of a box often blocks out entire objects, when really we only want to block out parts of objects.
+
+An example augmented image is shown below.
+
+![Augmented image](img/augmentations.png)
+
+#### Results
+
+The augmented dataset experiment also showed poor results. As can be seen below, the total loss reaached a minimum of around 8.05 at around 6000 steps, then shot up to a very high values. It then steadily decreased and asymptoted at around 12.5. This is a significantly higher loss than the reference experiment, so it appears that the augmentations made things much worse rather than better.
+
+![Improved experiment losses](img/improved_losses.png)
+
+Similarly to the reference experiment, the provided evaluation script did not seem to work properly, and the precision and recall values were single data points and were extremely low.
